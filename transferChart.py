@@ -25,7 +25,7 @@ df['Panic Sale Adjustment'] = df['Days Left in Transfer Window'] / df['Media Cov
 # Calculate Post-Performance Drop
 df['Post-Performance Drop'] = df['Initial Surge (%)'] - (df['Performance (Rating out of 10)'] / 10) * 100
 
-# Calculate ETAV without GARCH Volatility
+# Calculate ETAV 
 df['ETAV'] = df['Initial Surge (%)'] + 0.5 * df['Undervaluation Factor'] + 0.3 * df['Panic Sale Adjustment'] + df['Post-Performance Drop']
 
 # Display final DataFrame
