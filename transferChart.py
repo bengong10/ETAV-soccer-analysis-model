@@ -1,33 +1,56 @@
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 
-# Create the player data (price is from tranfermarkt)
+# Player data
 data = {
-    'Player': ['Jadon Sancho', 'Raphaël Varane', 'Cristiano Ronaldo', 'Antony', 'Casemiro', 'Tyrell Malacia',
+    'Player': ['Jadon Sancho', 'Raphaël Varane', 'Cristiano Ronaldo', 'Antony', 'Casemiro', 'Tyrell Malacia', 
                'Lisandro Martínez', 'Christian Eriksen', 'Mason Mount', 'André Onana', 'Rasmus Højlund'],
-    'Sale Price (£M)': [73.00, 40.00, 13.00, 85.50, 60.00, 13.50, 55.00, 0.00, 55.00, 47.20, 72.00],
-    'Market Value (£M)': [33.00, 0.00, 0.00, 25.00, 20.00, 18.00, 50.00, 8.00, 35.00, 35.00, 65.00],
+    'Sale Price (£M)': [73.0, 40.0, 13.0, 85.5, 60.0, 13.5, 55.0, 0.0, 55.0, 47.2, 72.0],
+    'Market Value (£M)': [33, 0, 0, 25, 20, 8, 50, 8, 35, 35, 65],
     'Performance (Rating out of 10)': [6.5, 7.0, 8.0, 6.0, 7.5, 7.0, 7.5, 7.0, 7.0, 7.0, 7.5],
-    'Days Left in Transfer Window': [60, 35, 4, 3, 12, 18, 12, 14, 7, 8, 10],
+    'Days Left in Transfer Window': [60, 35, 4, 3, 12, 18, 12, 14, 7, 7, 10],
     'Media Coverage Intensity': [85, 70, 95, 90, 75, 60, 65, 50, 80, 77, 82],
     'Initial Surge (%)': [4.0, 3.5, 5.0, 5.5, 4.2, 3.0, 3.8, 2.5, 4.5, 4.0, 3.8],
-    'Club Value Change (%) after Performance': [-15, -10, -25, -20, -12, -8, -5, -10, -12, -8, -6]
+    'Club Value Change (%) after Performance': [-15, -10, -25, -20, -12, -8, -5, -10, -12, -8, -6],
+    'Undervaluation Factor': [2.21, None, None, 3.42, 3.0, 0.75, 1.1, None, 1.57, 1.35, 1.11],
+    'Panic Sale Adjustment': [0.71, 0.5, 0.042, 0.033, 0.16, 0.3, 0.18, 0.28, 0.088, 0.1, 0.12],
+    'Post-Performance Drop': [-1.5, -2.0, -3.0, -2.5, -1.8, -0.5, -0.8, -1.0, -1.0, -1.5, -1.0],
+    'ETAV': [4.5, 3.8, 2.8, 6.0, 4.8, 4.3, 4.1, 2.3, 4.6, 4.2, 3.9]
 }
 
 # Create DataFrame
 df = pd.DataFrame(data)
 
-# Calculate Undervaluation Factor
-df['Undervaluation Factor'] = df['Sale Price (£M)'] / df['Market Value (£M)'].replace(0, float('inf'))
+# Drop rows where Market Value is zero or NaN in Undervaluation Factor
+df['Undervaluation Factor'] = df['Undervaluation Factor'].replace({None: 0, float('nan'): 0})
+df['Undervaluation Factor'] = df['Sale Price (£M)'] / df['Market Value (£M)'].replace(0, float('nan'))
 
-# Calculate Panic Sale Adjustment
-df['Panic Sale Adjustment'] = df['Days Left in Transfer Window'] / df['Media Coverage Intensity']
+# Drop rows where Undervaluation Factor is NaN due to Market Value being zero
+df.dropna(subset=['Undervaluation Factor'], inplace=True)
 
-# Calculate Post-Performance Drop
-df['Post-Performance Drop'] = df['Initial Surge (%)'] - (df['Performance (Rating out of 10)'] / 10) * 100
+# Define independent variables (features) and dependent variable (target)
+X = df[['Undervaluation Factor', 'Panic Sale Adjustment', 'Post-Performance Drop']]
+y = df['ETAV']
 
-# Calculate ETAV 
-df['ETAV'] = df['Initial Surge (%)'] + 0.5 * df['Undervaluation Factor'] + 0.3 * df['Panic Sale Adjustment'] + df['Post-Performance Drop']
+# Initialize Linear Regression Model
+model = LinearRegression()
 
-# Display final DataFrame
-print(df[['Player', 'Sale Price (£M)', 'Market Value (£M)', 'Performance (Rating out of 10)',
-          'Undervaluation Factor', 'Panic Sale Adjustment', 'Post-Performance Drop', 'ETAV']])
+# Fit the model
+model.fit(X, y)
+
+# Get the weight factors
+coefficients = pd.DataFrame(model.coef_, X.columns, columns=['Weight Factor'])
+intercept = model.intercept_
+
+# Display the weight factors and intercept
+print("Weight Factors (β, γ, δ):\n", coefficients)
+print("\nIntercept (constant):", intercept)
+
+# Update ETAV Calculation using the formula
+df['Predicted ETAV'] = intercept + df['Undervaluation Factor'] * coefficients.loc['Undervaluation Factor', 'Weight Factor'] + \
+                        df['Panic Sale Adjustment'] * coefficients.loc['Panic Sale Adjustment', 'Weight Factor'] + \
+                        df['Post-Performance Drop'] * coefficients.loc['Post-Performance Drop', 'Weight Factor']
+
+# Display the DataFrame with original and predicted ETAV values
+print(df[['Player', 'Sale Price (£M)', 'Market Value (£M)', 'Undervaluation Factor', 
+          'Panic Sale Adjustment', 'Post-Performance Drop', 'ETAV', 'Predicted ETAV']])
