@@ -3,7 +3,7 @@ import numpy as np
 from arch import arch_model
 from sklearn.linear_model import LinearRegression
 
-# Sample stock price data (replace with actual stock price data)
+# Sample stock price data 
 stock_prices = pd.Series([15.20, 15.25, 15.30, 15.10, 15.15, 15.05, 15.00, 14.95, 14.90, 14.85, 14.80])
 
 # Calculate daily returns
