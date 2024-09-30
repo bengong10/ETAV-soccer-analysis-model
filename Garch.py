@@ -17,8 +17,8 @@ garch_fit = model_garch.fit(disp='off')
 volatility = garch_fit.conditional_volatility
 
 # Ensure that the number of volatility values matches the number of players
-# You can truncate or align based on how you want to handle it
-volatility = volatility[-11:]  # Truncate to match player data size
+# Truncate to match player data size
+volatility = volatility[-11:]
 
 # Player data
 data = {
@@ -40,11 +40,11 @@ data = {
 # Create DataFrame and add GARCH Volatility
 df = pd.DataFrame(data)
 
-# Truncate player data to match volatility data size if necessary
+# Truncate player data to match volatility data size
 df = df.iloc[-len(volatility):]
 
 # Assign the volatility values
-df['Volatility'] = volatility.values  # Assign GARCH volatility to player data
+df['Volatility'] = volatility.values 
 
 # Drop rows where Market Value is zero or NaN in Undervaluation Factor
 df['Undervaluation Factor'] = df['Undervaluation Factor'].replace({None: 0, float('nan'): 0})
