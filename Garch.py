@@ -3,11 +3,17 @@ import numpy as np
 from arch import arch_model
 from sklearn.linear_model import LinearRegression
 
-# Sample stock price data 
-stock_prices = pd.Series([15.20, 15.25, 15.30, 15.10, 15.15, 15.05, 15.00, 14.95, 14.90, 14.85, 14.80])
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
 
-# Calculate daily returns
-returns = 100 * stock_prices.pct_change().dropna()
+# Read the CSV file into a DataFrame
+df = pd.read_csv('manu stock.xlsx')
+
+# define daily returns
+returns = df['return']
+# Define `log_return`
+log_return = df['log return']
+
 
 # Fit a GARCH(1,1) model to the returns
 model_garch = arch_model(returns, vol='Garch', p=1, q=1)
@@ -17,8 +23,8 @@ garch_fit = model_garch.fit(disp='off')
 volatility = garch_fit.conditional_volatility
 
 # Ensure that the number of volatility values matches the number of players
-# Truncate to match player data size
-volatility = volatility[-11:]
+# You can truncate or align based on how you want to handle it
+volatility = volatility[-11:]  # Truncate to match player data size
 
 # Player data
 data = {
@@ -40,11 +46,11 @@ data = {
 # Create DataFrame and add GARCH Volatility
 df = pd.DataFrame(data)
 
-# Truncate player data to match volatility data size
+# Truncate player data to match volatility data size if necessary
 df = df.iloc[-len(volatility):]
 
 # Assign the volatility values
-df['Volatility'] = volatility.values 
+df['Volatility'] = volatility.values  # Assign GARCH volatility to player data
 
 # Drop rows where Market Value is zero or NaN in Undervaluation Factor
 df['Undervaluation Factor'] = df['Undervaluation Factor'].replace({None: 0, float('nan'): 0})
