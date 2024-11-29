@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 # Load stock price data
-stock_data = pd.read_csv('manuStock.csv')  # Replace with your file path
+stock_data = pd.read_csv('manuStock.csv') 
 
 # Ensure 'Price' column exists and handle missing values
 stock_data['Price'] = stock_data['Price'].fillna(method='ffill')
