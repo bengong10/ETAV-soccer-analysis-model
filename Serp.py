@@ -3,7 +3,7 @@ import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 # SerpAPI setup
-api_key = "EFB65F4E0F254F0B9EC6C91F5F9C0770"  # Replace with your SerpAPI key
+api_key = "EFB65F4E0F254F0B9EC6C91F5F9C0770"  
 search_engine = "google_news"  # Search engine type
 
 # List of players
