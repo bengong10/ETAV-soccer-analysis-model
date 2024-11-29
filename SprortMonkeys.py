@@ -5,7 +5,7 @@ import time
 api_key = "wriZQIX5l2dMWjwtiJRGNtRSFbHWqQUo3OuuH43VjZ9ZZ3eZy7cXpJtcM6uA"
 base_url = "https://soccer.sportmonks.com/api/v2.0"
 
-man_united_team_id = 14  # Verified Manchester United team ID  # Replace with the actual team ID for Manchester United if different
+man_united_team_id = 14  # Verified Manchester United team ID 
 all_player_data = []
 
 # Retrieve all seasons to map season names to IDs
