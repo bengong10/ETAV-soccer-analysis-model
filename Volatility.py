@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Load stock data (replace 'stock_data.csv' with your actual file)
+# Load stock data 
 stock_data = pd.read_csv('manu_stock_with_volatility.csv', encoding='windows-1250')  # Specify detected encoding
 stock_data['Date'] = pd.to_datetime(stock_data['Date'])  # Ensure Date column is in datetime format
 
