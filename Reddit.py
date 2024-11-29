@@ -1,14 +1,14 @@
 import praw
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import pandas as pd
+from datetime import datetime, timedelta
 
 # Reddit API credentials
 reddit = praw.Reddit(
     client_id="3Vd1VvjKFlNoft8q74PU1w",
-    client_secret='_96HfhnxASTt-uNBZk090CA-REJH6g',  
+    client_secret='_96HfhnxASTt-uNBZk090CA-REJH6g',  # Replace with your correct client_secret
     user_agent="SentimentAnalysisApp"
 )
-
 
 # Players and their transfer dates
 player_data = [
@@ -34,11 +34,20 @@ results = []
 # Fetch Reddit posts for each player
 for player in player_data:
     query = f"{player['Player']} transfer"
-    print(f"Processing: {player['Player']}")
+    transfer_date = datetime.strptime(player["Transfer Date"], "%Y-%m-%d")
+    start_date = transfer_date - timedelta(days=60)
+    end_date = transfer_date + timedelta(days=30)
+
+    print(f"Processing: {player['Player']} (From {start_date.date()} to {end_date.date()})")
 
     try:
+        # Prepare search query to include date range
+        start_timestamp = int(start_date.timestamp())
+        end_timestamp = int(end_date.timestamp())
+        query_with_date = f"{query} timestamp:{start_timestamp}..{end_timestamp}"
+
         # Search for posts related to the player
-        posts = reddit.subreddit("soccer").search(query, limit=100)
+        posts = reddit.subreddit("soccer").search(query_with_date, syntax="cloudsearch", limit=100)
 
         # Perform Sentiment Analysis
         sentiments = []
@@ -54,6 +63,8 @@ for player in player_data:
         results.append({
             "Player": player["Player"],
             "Transfer Date": player["Transfer Date"],
+            "Start Date": start_date.date(),
+            "End Date": end_date.date(),
             "Average Sentiment": avg_sentiment,
             "Media Coverage Intensity": media_coverage_intensity,
             "Posts Analyzed": len(sentiments)
@@ -64,6 +75,8 @@ for player in player_data:
         results.append({
             "Player": player["Player"],
             "Transfer Date": player["Transfer Date"],
+            "Start Date": start_date.date(),
+            "End Date": end_date.date(),
             "Average Sentiment": "Error",
             "Media Coverage Intensity": "Error",
             "Posts Analyzed": "Error"
@@ -76,4 +89,4 @@ results_df = pd.DataFrame(results)
 print(results_df)
 
 # Save results to CSV
-results_df.to_csv("reddit_sentiment_results.csv", index=False)
+results_df.to_csv("reddit_sentiment_results_with_date_range30.csv", index=False)
