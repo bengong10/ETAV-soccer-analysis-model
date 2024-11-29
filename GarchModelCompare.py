@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 # Load stock price data
-stock_data = pd.read_csv('manuStock.csv')  # Replace with your file path
+stock_data = pd.read_csv('manuStock.csv') 
 stock_data['return'] = stock_data['Price'].pct_change().dropna()
 
 # Define a function to fit and evaluate different GARCH models
