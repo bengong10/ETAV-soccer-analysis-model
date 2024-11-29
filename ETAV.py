@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 stock_data = pd.read_csv('manuStock.csv', encoding='windows-1250')  # Specify detected encoding
 
 # Load ETAV data
-etav_data = pd.read_csv('ETAV.csv', encoding='windows-1250')  # Replace 'test.csv' with your file
+etav_data = pd.read_csv('ETAV.csv', encoding='windows-1250')  
 
 # Ensure consistent date format
 stock_data['Date'] = pd.to_datetime(stock_data['Date'], format='%d-%b-%y', errors='coerce')
