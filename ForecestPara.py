@@ -36,7 +36,8 @@ aligned_significant_vars = aligned_significant_vars.iloc[:len(stock_data)]  # En
 # Split aligned significant_vars into training and testing sets
 train_significant_vars = aligned_significant_vars[:train_size]
 test_significant_vars = aligned_significant_vars[train_size:]
-
+# Initialize an empty list to store coefficients
+coefficients_list = []
 # Iterative one-step-ahead forecasting
 forecasted_volatility = []
 for i in range(len(test_returns)):
@@ -63,9 +64,17 @@ for i in range(len(test_returns)):
         "PPD": single_row_x["PPD"].values,
     }
     forecast = fit.forecast(horizon=1, x=single_row_x_dict)
+    # Save coefficients for this iteration
+    coefficients_list.append(fit.params)
     forecasted_volatility.append(np.sqrt(forecast.variance.values[-1, 0]))
 # Compute actual volatility using rolling standard deviation
 actual_volatility = test_returns.rolling(window=5).std().dropna()
+
+# Convert coefficients to a DataFrame
+coefficients_df = pd.DataFrame(coefficients_list)
+# Save coefficients to a CSV file
+coefficients_df.to_csv('garch_coefficients.csv', index=False)
+print("Coefficients saved to garch_coefficients.csv")
 
 # Align lengths
 forecasted_volatility = forecasted_volatility[-len(actual_volatility):]
