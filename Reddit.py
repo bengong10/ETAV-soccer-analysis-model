@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # Reddit API credentials
 reddit = praw.Reddit(
     client_id="3Vd1VvjKFlNoft8q74PU1w",
-    client_secret='_96HfhnxASTt-uNBZk090CA-REJH6g',  # Replace with your correct client_secret
+    client_secret='_96HfhnxASTt-uNBZk090CA-REJH6g',  
     user_agent="SentimentAnalysisApp"
 )
 
